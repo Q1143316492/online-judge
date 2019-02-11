@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cwl/CLionProjects/Study/include/OnlineJudge.h
+bits/stdc++.h
+-
+unistd.h
+-
+sys/types.h
+-
+sys/wait.h
+-
+sys/resource.h
+-
+Problem.h
+/home/cwl/CLionProjects/Study/include/Problem.h
+util.h
+/home/cwl/CLionProjects/Study/include/util.h
+judgeResult.h
+/home/cwl/CLionProjects/Study/include/judgeResult.h
+
+/home/cwl/CLionProjects/Study/include/Problem.h
+bits/stdc++.h
+-
+util.h
+/home/cwl/CLionProjects/Study/include/util.h
+
+/home/cwl/CLionProjects/Study/include/judgeResult.h
+
+/home/cwl/CLionProjects/Study/include/util.h
+bits/stdc++.h
+-
+unistd.h
+-
+
+/home/cwl/CLionProjects/Study/main.cpp
+include/OnlineJudge.h
+/home/cwl/CLionProjects/Study/include/OnlineJudge.h
+
