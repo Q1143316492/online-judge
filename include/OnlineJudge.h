@@ -5,11 +5,11 @@
 #ifndef STUDY_ONLINEJUDGE_H
 #define STUDY_ONLINEJUDGE_H
 
-#include <bits/stdc++.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/resource.h>
+#include <sys/ptrace.h>
 #include "Problem.h"
 #include "util.h"
 #include "judgeResult.h"
@@ -26,6 +26,7 @@ public:
     }
 
     static void child_program(const int this_pid, Problem problem) {
+        ptrace(PTRACE_TRACEME, 0, NULL, NULL);                   // 让父进程监控此子进程
         set_user_limit(problem);                                 // set problem limit
         set_freopen(problem.input_file, problem.output_file);    // set file freopen
         util::start_bash(problem.pathname.c_str());              //run user problem
@@ -57,14 +58,19 @@ private:
         result.end_time = system_clock::now();
         result.tot_time = duration_cast<milliseconds>(result.end_time - result.begin_time).count();
 
-        std::cout << "memery = " << result.tot_memery << "kb" << std::endl;
-        std::cout << "time = " << result.tot_time   << "ms" << std::endl;
+
+        /**
+         * ptrace(PTRACE_KILL, pid, NULL, NULL);
+         * ptrace(PTRACE_GETREGS, pid, NULL, &reg); //一次性读取所有的寄存器的内容
+         * ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
+         * */
 
         // exit success spj
         if(WIFEXITED(status)) {
             //std::cout << "WIFEXITED = " << WEXITSTATUS(status) << std::endl;
 
             if(result.tot_memery > DEFAULT_MEMERY) {
+                ptrace(PTRACE_KILL, child_pid, NULL, NULL);         //干掉子进程
                 result.result = JudgeResult::Memory_Limit_Exceeded;
             } else if(Problem::check_answer(problem.output_file.c_str(), problem.answer_file.c_str())) {
                 result.result = JudgeResult::Accepted;
@@ -138,6 +144,5 @@ private:
         return INF;
     }
 };
-
 
 #endif //STUDY_ONLINEJUDGE_H
