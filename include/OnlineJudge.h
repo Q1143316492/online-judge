@@ -26,7 +26,7 @@ public:
     }
 
     static void child_program(const int this_pid, Problem problem) {
-        ptrace(PTRACE_TRACEME, 0, NULL, NULL);                   // 让父进程监控此子进程
+        //ptrace(PTRACE_TRACEME, 0, NULL, NULL);                   // 让父进程监控此子进程
         set_user_limit(problem);                                 // set problem limit
         set_freopen(problem.input_file, problem.output_file);    // set file freopen
         util::start_bash(problem.pathname.c_str());              //run user problem
@@ -44,7 +44,7 @@ private:
         r->rlim_cur = problem.time_limit;
         r->rlim_max = problem.time_limit;
         setrlimit(RLIMIT_CPU, r);
-        setrlimit(RLIMIT_CORE, NULL);   //禁止创建core文件
+        setrlimit(RLIMIT_CORE, NULL);   //禁止创建core文件, 内核转存文件, 因为好像没什么用
     }
 
     static void listen_child_program(const int child_pid, Problem &problem, RealResult &result) {
@@ -65,6 +65,9 @@ private:
          * ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
          * */
 
+        // WIFEXITED(status) 这个宏用来指出子进程是否为正常退出的，如果是，它会返回一个非零值
+        // WEXITSTATUS(status) 当WIFEXITED返回非零值时，我们可以用这个宏来提取子进程的返回值
+
         // exit success spj
         if(WIFEXITED(status)) {
             //std::cout << "WIFEXITED = " << WEXITSTATUS(status) << std::endl;
@@ -81,6 +84,7 @@ private:
         }
 
         // exit fail
+
         if(WIFSIGNALED(status)) {
             switch WTERMSIG(status) {
                 case SIGXCPU:   // TLE
@@ -96,8 +100,8 @@ private:
                     result.result = JudgeResult::Runtime_Error;
                 break;
             }
-
         }
+
 
         if(result.result == JudgeResult::Accepted) {
             std::cout << "Accept" << std::endl;
