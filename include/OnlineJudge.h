@@ -22,7 +22,14 @@ class OnlineJudge {
 public:
 
     static void father_program(const int this_pid, const int child_pid, Problem problem, RealResult &result) {
-        listen_child_program(child_pid, problem, result);
+        int listen_status_end = 0;
+        while(true) {
+            listen_status_end = listen_child_program(child_pid, problem, result);
+            if(listen_status_end) {
+                break;
+            }
+        }
+
     }
 
     static void child_program(const int this_pid, Problem problem) {
@@ -47,13 +54,21 @@ private:
         setrlimit(RLIMIT_CORE, NULL);   //禁止创建core文件, 内核转存文件, 因为好像没什么用
     }
 
-    static void listen_child_program(const int child_pid, Problem &problem, RealResult &result) {
+    static int listen_child_program(const int child_pid, Problem &problem, RealResult &result) {
 
         int status = 0;
         struct rusage use;
-        result.tot_memery = get_progress_memery(child_pid);
 
-        int wait_pid = wait4(child_pid, &status, 0, &use);
+        //WNOHANG 如果该子进程没有结束，则返回0；
+        int wait_pid = wait4(child_pid, &status, WNOHANG, &use);
+
+        if(wait_pid == 0) {
+            int memery = get_progress_memery(child_pid);
+            if(memery != -1) {
+                result.tot_memery = memery;
+            }
+            return 0;
+        }
 
         result.end_time = system_clock::now();
         result.tot_time = duration_cast<milliseconds>(result.end_time - result.begin_time).count();
@@ -80,7 +95,7 @@ private:
             } else {
                 result.result = JudgeResult::Wrong_Answer;
             }
-            return ;
+            return 1;
         }
 
         // exit fail
@@ -118,6 +133,7 @@ private:
         if(result.result == JudgeResult::Output_Limit_Exceeded) {
             std::cout << "Output limit except" << std::endl;
         }
+        return 1;
     }
 
     //
@@ -145,7 +161,7 @@ private:
                 return util::string_to_int(vec[1], INF);
             }
         }
-        return INF;
+        return -1;
     }
 };
 
