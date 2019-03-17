@@ -5,7 +5,6 @@
 #ifndef STUDY_MYDOCKER_H
 #define STUDY_MYDOCKER_H
 
-#include <bits/stdc++.h>
 #include <sys/wait.h>   // waitpid
 #include <sys/mount.h>  // mount
 #include <fcntl.h>      // open

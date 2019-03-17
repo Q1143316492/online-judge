@@ -10,18 +10,18 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <sys/ptrace.h>
-#include "Problem.h"
+#include "problem.h"
 #include "util.h"
-#include "judgeResult.h"
+#include "judge_result.h"
 
 using std::chrono::system_clock;
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
 
-class OnlineJudge {
+class online_judge {
 public:
 
-    static void father_program(const int this_pid, const int child_pid, Problem problem, RealResult &result) {
+    static void father_program(const int this_pid, const int child_pid, problem problem, RealResult &result) {
         int listen_status_end = 0;
         while(true) {
             listen_status_end = listen_child_program(child_pid, problem, result);
@@ -32,7 +32,7 @@ public:
 
     }
 
-    static void child_program(const int this_pid, Problem problem) {
+    static void child_program(const int this_pid, problem problem) {
         //ptrace(PTRACE_TRACEME, 0, NULL, NULL);                   // 让父进程监控此子进程
         set_user_limit(problem);                                 // set problem limit
         set_freopen(problem.input_file, problem.output_file);    // set file freopen
@@ -46,7 +46,7 @@ private:
         freopen(output.c_str(), "w", stdout);
     }
 
-    static void set_user_limit(Problem problem) {
+    static void set_user_limit(problem problem) {
         struct rlimit *r = new rlimit();
         r->rlim_cur = problem.time_limit;
         r->rlim_max = problem.time_limit;
@@ -54,7 +54,7 @@ private:
         setrlimit(RLIMIT_CORE, NULL);   //禁止创建core文件, 内核转存文件, 因为好像没什么用
     }
 
-    static int listen_child_program(const int child_pid, Problem &problem, RealResult &result) {
+    static int listen_child_program(const int child_pid, problem &problem, RealResult &result) {
 
         int status = 0;
         struct rusage use;
@@ -90,7 +90,7 @@ private:
             if(result.tot_memery > DEFAULT_MEMERY) {
                 ptrace(PTRACE_KILL, child_pid, NULL, NULL);         //干掉子进程
                 result.result = JudgeResult::Memory_Limit_Exceeded;
-            } else if(Problem::check_answer(problem.output_file.c_str(), problem.answer_file.c_str())) {
+            } else if(problem::check_answer(problem.output_file.c_str(), problem.answer_file.c_str())) {
                 result.result = JudgeResult::Accepted;
             } else {
                 result.result = JudgeResult::Wrong_Answer;

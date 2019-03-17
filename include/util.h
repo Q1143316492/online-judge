@@ -4,7 +4,6 @@
 // 后来整合出来，就没有修改了。
 #pragma once
 
-#include <bits/stdc++.h>
 #include <unistd.h>
 
 namespace util {

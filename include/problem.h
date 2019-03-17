@@ -11,7 +11,7 @@
 const int INF = 0x7FFFFFFF;
 const int DEFAULT_MEMERY = 1024 * 1024 * 128; // 默认内存限制 128 MB
 
-class Problem {
+class problem {
 public:
     int memery_limit;   //kb
     int time_limit;     //s
@@ -20,8 +20,8 @@ public:
     std::string output_file;
     std::string answer_file;
 
-    Problem() = default;
-    Problem(std::string &input_time, std::string &path,
+    problem() = default;
+    problem(std::string &input_time, std::string &path,
             std::string &input_file, std::string &output_file, std::string &answer_file) {
         time_limit = util::string_to_int(input_time);
         memery_limit = DEFAULT_MEMERY;
@@ -35,19 +35,25 @@ public:
     // 完全一致为AC否则WA
     //
     static bool check_answer(const char* answer_file1, const char* answer_file2) {
-        std::ifstream input1(answer_file1);
-        std::ifstream input2(answer_file2);
+        std::ifstream input1(answer_file1, std::ifstream::in);
+        std::ifstream input2(answer_file2, std::ifstream::in);
         if(!input1.is_open() || !input2.is_open()) {
             return false;
         }
         while(1) {
             if(input1.eof() && input2.eof()) {
+                input1.close();
+                input2.close();
                 return true;
             }
             if(input1.eof() || input2.eof()) {
+                input1.close();
+                input2.close();
                 return false;
             }
             if(input1.get() != input2.get()) {
+                input1.close();
+                input2.close();
                 return false;
             }
         }
